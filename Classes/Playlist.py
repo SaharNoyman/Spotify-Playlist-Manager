@@ -1,12 +1,11 @@
 from Classes.Track import Track
-from Classes.Tracks import Tracks
+import Classes.Tracks as Tracks
 
 class Playlist:
-    def __init__(self, sp, sp_playlist, is_genre):
+    def __init__(self, sp, sp_playlist):
         self.sp_playlist = sp_playlist
         self.name = sp_playlist['name']
         self.sp = sp
-        self.is_genre = is_genre
         self.tracks = []
 
     def set_playlist_tracks(self):
@@ -16,21 +15,16 @@ class Playlist:
             results = self.sp.next(results)
             sp_tracks.extend(results['items'])
 
-        self.convert_to_track(sp_tracks)
-
-    def convert_to_track(self, sp_tracks):
         for sp_track in sp_tracks:
-            track = None
-            if self.is_genre:
-                track = Tracks.find_track(sp_track)
-
-            if track is None:
-                track = Track(self.sp, sp_track)
-                if self.is_genre:
-                    Tracks.add_track(track)
-
+            track, duplicate = self.convert_to_track(sp_track)
             track.add_playlist(self)
             self.tracks.append(track)
+            if not duplicate:
+                Tracks.add_track(track)
+
+    def convert_to_track(self, sp_track):
+        track = Tracks.find_track(sp_track)
+        return (track, True) if track else (Track(self.sp, sp_track), False)
 
     # Deprecated
     def list_track(self, track):

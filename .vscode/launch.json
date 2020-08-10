@@ -8,8 +8,8 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
-            "args": ["-g","-a"],
+            "program": "duplicates.py",
+            "args": ["-p","Rap","-p","Story", "-p", "All-time favorites"],
             "console": "integratedTerminal"
         }
     ]

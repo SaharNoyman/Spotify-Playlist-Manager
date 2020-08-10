@@ -1,28 +1,21 @@
-class Tracks:
-    tracks = []
+tracks = []
 
-    def __init__(self):
-        pass
+def add_track(track):
+    tracks.append(track)
 
-    @classmethod
-    def add_track(cls, track):
-        cls.tracks.append(track)
+def find_track(sp_track):
+    for t in tracks:
+        if t.name == sp_track['track']['name'] and t.artist == sp_track['track']['artists'][0]['name']:
+            return t
 
-    @classmethod
-    def find_track(cls, sp_track):
-        for t in cls.tracks:
-            if t.name == sp_track['track']['name'] and t.artist == sp_track['track']['artists'][0]['name']:
-                return t
+    return None
 
-        return None
-
-    @classmethod
-    def find_duplicates(cls):
-        duplicates = [track for track in cls.tracks if track.count > 1]
-        for track in duplicates:
-            message = f"The track {track.name} is in "
-            for playlist in track.playlists:
-                message += f"{playlist.name}, "
-            message = message[:-2]
-            print(message)
+def find_duplicates(count):
+    duplicates = [track for track in tracks if track.count >= count]
+    for track in duplicates:
+        message = f"{track.name} is in {track.count} Playlists: "
+        for playlist in track.playlists:
+            message += f"\n  {playlist.name}"
+        message += "\n"
+        print(message)
 
