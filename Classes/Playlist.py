@@ -18,6 +18,12 @@ class Playlist:
         for sp_track in sp_tracks:
             track, duplicate = self.convert_to_track(sp_track)
             track.add_playlist(self)
+            for artist in track.artists:
+                if not artist.find_playlist(self):
+                    artist.add_playlist(self)
+                if not artist.find_track(track):
+                    artist.add_track(track)
+
             self.tracks.append(track)
             if not duplicate:
                 Tracks.add_track(track)
@@ -40,15 +46,15 @@ class Playlist:
         duplicates = []
 
         for track in self.tracks:
-            if (track.name, track.artist) not in seen:
-                seen[(track.name, track.artist)] = 1
+            if (track.name, tuple(track.artists)) not in seen:
+                seen[(track.name, tuple(track.artists))] = 1
             else:
-                if seen[(track.name, track.artist)] == 1:
+                if seen[(track.name, tuple(track.artists))] == 1:
                     duplicates.append(track)
-                seen[(track.name, track.artist)] += 1
+                seen[(track.name, tuple(track.artists))] += 1
 
         for track in duplicates:
-            print(f"{track.name} - {seen[(track.name, track.artist)]} times in {self.name}")
+            print(f"{track.name} - {seen[(track.name, tuple(track.artists))]} times in {self.name}")
 
     def shuffle(self):
         pass

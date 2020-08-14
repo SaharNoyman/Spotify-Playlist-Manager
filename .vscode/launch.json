@@ -9,7 +9,8 @@
             "type": "python",
             "request": "launch",
             "program": "duplicates.py",
-            "args": ["-p","Rap","-p","Story", "-p", "All-time favorites"],
+            //"args": ["-p","Rap","-p","Story", "-p", "All-time favorites"],
+            "args": ["-a"],
             "console": "integratedTerminal"
         }
     ]
