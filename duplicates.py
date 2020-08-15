@@ -1,6 +1,7 @@
 from Private import Initialize
 from Classes.Playlist import Playlist
 import argparse
+from Classes.Track import Track
 
 genres = ['Alternative / Pop Rock',
           'Metal',
@@ -12,8 +13,16 @@ genres = ['Alternative / Pop Rock',
           'ים תיכוני',
           'רוק ישראלי']
 
-def find_duplicates(count, tracks_to_search):
-    duplicates = [track for track in tracks if track.count >= count]
+def find_multi_duplicates(count, tracks_to_search):
+    tracks = []
+    for playlist in Playlist.playlists.values():
+        tracks.extend(playlist.tracks.values())
+
+    duplicates = {}
+    for track in tracks:
+        if track.count >= count:
+            duplicates[track] = track.count
+
     for track in duplicates:
         if not tracks_to_search or track.name in tracks_to_search:
             message = f"{track.name} is in {track.count} Playlists: "
@@ -22,8 +31,8 @@ def find_duplicates(count, tracks_to_search):
             message += "\n"
             print(message)
 
-def list_playlists(sp, target_playlists):
 
+def list_playlists(sp, target_playlists):
     sp_playlists = sp.current_user_playlists()
     playlists = []
 
@@ -82,7 +91,7 @@ def main():
     for playlist in playlists:
         playlist.find_duplicates()
 
-    #Tracks.find_duplicates(results.count, results.songs)
+    find_multi_duplicates(results.count, results.songs)
 
 
 if __name__ == "__main__":
