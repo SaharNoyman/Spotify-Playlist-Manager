@@ -1,4 +1,3 @@
-import Classes.Artists as Artists
 from Classes.Artist import Artist
 
 class Track:
@@ -18,11 +17,13 @@ class Track:
 
     def set_artists(self, sp_artists):
         for sp_artist in sp_artists:
-            artist, duplicate = self.convert_to_artist(sp_artist)
+            artist = self.convert_to_artist(sp_artist)
             self.artists.append(artist)
-            if not duplicate:
-                Artists.add_artist(artist)
 
     def convert_to_artist(self, sp_artist):
-        artist = Artists.find_artist(sp_artist)
-        return (artist, True) if artist else (Artist(self.sp, sp_artist), False)
+        if sp_artist['name'] in Artist.artists:
+            return Artist.artists[sp_artist['name']]
+        
+        artist = Artist(self.sp, sp_artist)
+        Artist.artists[artist.name] = artist
+        return artist

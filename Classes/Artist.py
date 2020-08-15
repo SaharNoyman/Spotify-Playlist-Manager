@@ -1,4 +1,6 @@
 class Artist:
+    artists = {}
+
     def __init__(self, sp, sp_artist):
         self.sp_artist = sp_artist
         self.name = sp_artist['name']
@@ -7,6 +9,7 @@ class Artist:
         self.track_count = 0
         self.playlists = []
         self.sp = sp
+        self.artists[self.name] = self
 
     def add_playlist(self, playlist):
         self.playlists.append(playlist)

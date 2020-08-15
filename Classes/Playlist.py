@@ -1,22 +1,29 @@
 from Classes.Track import Track
-import Classes.Tracks as Tracks
 
 class Playlist:
+    playlists = {}
+
     def __init__(self, sp, sp_playlist):
         self.sp_playlist = sp_playlist
         self.name = sp_playlist['name']
         self.sp = sp
-        self.tracks = []
+        self.tracks = {}
+        self.playlists[self.name] = self
 
-    def set_playlist_tracks(self):
+    def get_playlist_sp_tracks(self):
         results = self.sp.user_playlist_tracks(playlist_id=self.sp_playlist['uri'], limit=100)
         sp_tracks = results['items']
         while results['next']:
             results = self.sp.next(results)
             sp_tracks.extend(results['items'])
 
+        return sp_tracks
+
+    def set_playlist_tracks(self):
+        sp_tracks = self.get_playlist_sp_tracks()
+        
         for sp_track in sp_tracks:
-            track, duplicate = self.convert_to_track(sp_track)
+            track = self.convert_to_track(sp_track)
             track.add_playlist(self)
             for artist in track.artists:
                 if not artist.find_playlist(self):
@@ -24,37 +31,38 @@ class Playlist:
                 if not artist.find_track(track):
                     artist.add_track(track)
 
-            self.tracks.append(track)
-            if not duplicate:
-                Tracks.add_track(track)
+            self.tracks[(track.name, track.artists[0].name)] = track
+
 
     def convert_to_track(self, sp_track):
-        track = Tracks.find_track(sp_track)
-        return (track, True) if track else (Track(self.sp, sp_track), False)
+        name = sp_track['track']['name']
+        artist_name = sp_track['track']['artists'][0]['name']
+        
+        for playlist in self.playlists:    
+            track = self.playlists[playlist].get_track((name, artist_name))
 
-    # Deprecated
-    def list_track(self, track):
-        t = Tracks.find_track(track)
-        if t is None:
-            Tracks.tracks.append(track)
-        track.add_playlist(self)
-        return t
+        return track if track else Track(self.sp, sp_track)
 
+    def get_track(self, track):
+        return self.tracks[track] if track in self.tracks else None
 
     def find_duplicates(self):
         seen = {}
         duplicates = []
 
         for track in self.tracks:
-            if (track.name, tuple(track.artists)) not in seen:
-                seen[(track.name, tuple(track.artists))] = 1
+            name = self.tracks[track].name
+            artists = self.tracks[track].artists
+
+            if (name, tuple(artists)) not in seen:
+                seen[(name, tuple(artists))] = 1
             else:
-                if seen[(track.name, tuple(track.artists))] == 1:
+                if seen[(name, tuple(artists))] == 1:
                     duplicates.append(track)
-                seen[(track.name, tuple(track.artists))] += 1
+                seen[(name, tuple(artists))] += 1
 
         for track in duplicates:
-            print(f"{track.name} - {seen[(track.name, tuple(track.artists))]} times in {self.name}")
+            print(f"{name} - {seen[(name, tuple(artists))]} times in {self.name}")
 
     def shuffle(self):
         pass

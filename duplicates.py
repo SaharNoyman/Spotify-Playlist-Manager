@@ -1,6 +1,5 @@
 from Private import Initialize
 from Classes.Playlist import Playlist
-import Classes.Tracks as Tracks
 import argparse
 
 genres = ['Alternative / Pop Rock',
@@ -12,6 +11,16 @@ genres = ['Alternative / Pop Rock',
           'היפ הופ ישראלי',
           'ים תיכוני',
           'רוק ישראלי']
+
+def find_duplicates(count, tracks_to_search):
+    duplicates = [track for track in tracks if track.count >= count]
+    for track in duplicates:
+        if not tracks_to_search or track.name in tracks_to_search:
+            message = f"{track.name} is in {track.count} Playlists: "
+            for playlist in track.playlists:
+                message += f"\n  {playlist.name}"
+            message += "\n"
+            print(message)
 
 def list_playlists(sp, target_playlists):
 
@@ -45,7 +54,7 @@ def argument_parser():
     action.add_argument('-da', '--duplicate-artists', action='store_true', default=False, dest='duplicate_artists', help='Find artists in more than 1 playlist')
     action.add_argument('-pc', '--playlists', action='store_true', default=False, dest='playlists_count', help='Print the songs count of playlists')
     action.add_argument('-fs', '--find-single-duplicates', action='store_true', default=True, dest='single_duplicates', help='Find duplicates in the same playlist')
-    action.add_argument('-fm', '--find-multi-duplicates', action='store_true', default=False, dest='single_duplicates', help='Find duplicates across multiple playlists')
+    action.add_argument('-fm', '--find-multi-duplicates', action='store_true', default=False, dest='multi_duplicates', help='Find duplicates across multiple playlists')
     parser.add_argument('-n', '--num', action='store', default=2, dest='count', type=int, help='Number of duplicates to find')      #done
     parser.add_argument('-s', '--song', action='append', default=[], dest='songs', help='Songs to search')                          #done
 
@@ -66,13 +75,14 @@ def main():
         playlists = list_playlists(sp, genres)
 
     # Action
-    
+    if results.multi_duplicates:
+        Tracks.find_duplicates(results.count, results.songs)
 
     # Filter genres playlists
     for playlist in playlists:
         playlist.find_duplicates()
 
-    Tracks.find_duplicates(results.count, results.songs)
+    #Tracks.find_duplicates(results.count, results.songs)
 
 
 if __name__ == "__main__":
